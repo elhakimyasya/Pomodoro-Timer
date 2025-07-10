@@ -1,0 +1,62 @@
+{
+    "app_name": {
+        "message": "Pomodoro Timer"
+    },
+    "app_tagline": {
+        "message": "Get More Done, Stay Burnout-Free"
+    },
+    "color_mode": {
+        "message": "Color Mode"
+    },
+    "more": {
+        "message": "More"
+    },
+    "rate_this_extension": {
+        "message": "Rate this Extension"
+    },
+    "more_extensions": {
+        "message": "More Extensions"
+    },
+    "donate_paypal": {
+        "message": "Donate via PayPal"
+    },
+    "donate_trakteer": {
+        "message": "Donate via Trakteer"
+    },
+    "donate_saweria": {
+        "message": "Donate via Saweria"
+    },
+    "start_session": {
+        "message": "Start Session"
+    },
+    "new_session": {
+        "message": "New Session"
+    },
+    "pause_session": {
+        "message": "Pause Session"
+    },
+    "resume_session": {
+        "message": "Resume Session"
+    },
+    "stop_session": {
+        "message": "Stop Session"
+    },
+    "break_session": {
+        "message": "Start a Break"
+    },
+    "duration": {
+        "message": "Duration"
+    },
+    "custom_duration": {
+        "message": "Custom Duration"
+    },
+    "minutes": {
+        "message": "minutes"
+    },
+    "hours": {
+        "message": "hours"
+    },
+    "enter_in_minutes": {
+        "message": "Enter in Minutes."
+    }
+}

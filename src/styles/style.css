@@ -1,0 +1,68 @@
+@import 'tailwindcss';
+
+@import './components/input.css';
+@import './components/snackbar.css';
+@import './fonts/default.css';
+@import './fonts/ds-digi.css';
+
+@custom-variant dark (&:where(.dark_mode, .dark_mode *));
+
+@theme {
+    --color-colorKey: #283593;
+    --color-colorBackground: #ffffff;
+    --color-colorBackgroundAlt: #eeeeee;
+    --color-colorText: #202124;
+    --color-colorMeta: #5f6368;
+    --color-colorBorder: #dadce4;
+    --color-colorMaterialRed: #c62828;
+    --color-colorMaterialGreen: #2e7d32;
+    --color-colorMaterialBlue: #0277bd;
+    --color-colorMaterialOrange: #e65100;
+    --color-colorMaterialPurple: #4527a0;
+    --color-colorMaterialIndigo: #283593;
+    --color-colorMaterialYellow: #f9a825;
+
+    --color-colorDarkKey: #9fa8da;
+    --color-colorDarkBackground: #202124;
+    --color-colorDarkBackgroundAlt: #38393d;
+    --color-colorDarkText: #e4e6e9;
+    --color-colorDarkMeta: #9aa0a6;
+    --color-colorDarkBorder: #5f6368;
+    --color-colorDarkMaterialRed: #ffcdd2;
+    --color-colorDarkMaterialGreen: #c8e6c9;
+    --color-colorDarkMaterialBlue: #bbdefb;
+    --color-colorDarkMaterialOrange: #ffe0b2;
+    --color-colorDarkMaterialPurple: #d1c4e9;
+    --color-colorDarkMaterialIndigo: #c5cae9;
+    --color-colorDarkMaterialYellow: #fff9c4;
+
+    --shadow-2dp: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+    --shadow-4dp: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
+    --shadow-6dp: 0 3px 5px -1px rgba(0, 0, 0, 0.2), 0 6px 10px 0 rgba(0, 0, 0, 0.14), 0 1px 18px 0 rgba(0, 0, 0, 0.12);
+
+    --font-sans: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+    --font-mono: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'Liberation Mono', 'Andale Mono', 'Ubuntu Mono', Menlo, Monaco, Consolas, monospace;
+    --font-digital: 'DS-Digi', ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'Liberation Mono', 'Andale Mono', 'Ubuntu Mono', Menlo, Monaco, Consolas, monospace;
+}
+
+@layer base {
+    * {
+        @apply [-webkit-tap-highlight-color:transparent];
+    }
+
+    ::placeholder {
+        @apply text-inherit;
+    }
+
+    html {
+        @apply overflow-x-hidden overflow-y-auto scroll-smooth;
+    }
+
+    body {
+        @apply m-0!;
+    }
+
+    textarea {
+        @apply resize-y;
+    }
+}

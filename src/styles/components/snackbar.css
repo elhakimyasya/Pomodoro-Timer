@@ -1,0 +1,6 @@
+.elcreative_snackbar {
+    @apply bg-colorText text-colorBackground shadow-4dp dark:bg-colorDarkBackgroundAlt dark:text-colorDarkText visible fixed bottom-4 z-50 max-h-[92vh] max-w-full min-w-[15vw] translate-y-0 overflow-y-auto rounded px-6 py-3 text-sm opacity-100 transition-[opacity,transform,visibility] lg:w-max lg:max-w-[50vw] ltr:right-4 ltr:left-4 ltr:lg:right-0 rtl:right-4 rtl:lg:right-0 rtl:lg:left-4;
+}
+.elcreative_snackbar:not(.active) {
+    @apply invisible translate-y-[300%] opacity-0;
+}

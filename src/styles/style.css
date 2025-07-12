@@ -8,33 +8,31 @@
 @custom-variant dark (&:where(.dark_mode, .dark_mode *));
 
 @theme {
-    --color-colorKey: #283593;
+    --color-colorKey: #432dd7;
     --color-colorBackground: #ffffff;
     --color-colorBackgroundAlt: #eeeeee;
     --color-colorText: #202124;
     --color-colorMeta: #5f6368;
     --color-colorBorder: #dadce4;
-    --color-colorMaterialRed: #c62828;
-    --color-colorMaterialGreen: #2e7d32;
-    --color-colorMaterialBlue: #0277bd;
-    --color-colorMaterialOrange: #e65100;
-    --color-colorMaterialPurple: #4527a0;
-    --color-colorMaterialIndigo: #283593;
-    --color-colorMaterialYellow: #f9a825;
+    --color-colorMaterialRed: #c10007;
+    --color-colorMaterialGreen: #008236;
+    --color-colorMaterialBlue: #1447e6;
+    --color-colorMaterialOrange: #ca3500;
+    --color-colorMaterialPurple: #8200db;
+    --color-colorMaterialYellow: #a65f00;
 
-    --color-colorDarkKey: #9fa8da;
+    --color-colorDarkKey: #a3b3ff;
     --color-colorDarkBackground: #202124;
     --color-colorDarkBackgroundAlt: #38393d;
     --color-colorDarkText: #e4e6e9;
     --color-colorDarkMeta: #9aa0a6;
     --color-colorDarkBorder: #5f6368;
-    --color-colorDarkMaterialRed: #ffcdd2;
-    --color-colorDarkMaterialGreen: #c8e6c9;
-    --color-colorDarkMaterialBlue: #bbdefb;
-    --color-colorDarkMaterialOrange: #ffe0b2;
-    --color-colorDarkMaterialPurple: #d1c4e9;
-    --color-colorDarkMaterialIndigo: #c5cae9;
-    --color-colorDarkMaterialYellow: #fff9c4;
+    --color-colorDarkMaterialRed: #ffa2a2;
+    --color-colorDarkMaterialGreen: #7bf1a8;
+    --color-colorDarkMaterialBlue: #8ec5ff;
+    --color-colorDarkMaterialOrange: #ffb86a;
+    --color-colorDarkMaterialPurple: #dab2ff;
+    --color-colorDarkMaterialYellow: #fff085;
 
     --shadow-2dp: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
     --shadow-4dp: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);

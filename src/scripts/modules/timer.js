@@ -1,21 +1,101 @@
-let countdownInterval;
-let isPaused = false;
-let pausedRemaining = 0;
-let previousDuration = 0;
+let timerCountdownInterval;
+let timerIsPaused = false;
+let timerPausedRemaining = 0;
+let timerPreviousDuration = 0;
+let timerAudio = null;
+let timerAudioContext = null;
+let backgroundInterval;
 
-export const timerStart = (duration) => {
-    browser.runtime.sendMessage({
-        type: 'START_TIMER',
-        durationInMinutes: duration
+export const timerAudioPlay = () => {
+    const audio = new Audio(browser.runtime.getURL('src/audios/alarm.mp3'));
+    audio.loop = false;
+
+    const audioContext = new AudioContext();
+    const gainNode = audioContext.createGain();
+
+    gainNode.gain.value = 0.3;
+
+    audioContext.createMediaElementSource(audio).connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    timerAudio = audio;
+    timerAudioContext = audioContext;
+
+    audio.play().catch((error) => {
+        console.warn('Autoplay Blocked:', error);
     });
 };
 
-export const timerStop = () => {
-    browser.runtime.sendMessage({ type: 'STOP_TIMER' });
+export const timerAudioStop = () => {
+    if (timerAudio) {
+        timerAudio.pause();
+        timerAudio.currentTime = 0;
+        timerAudio = null;
+    }
+
+    if (timerAudioContext) {
+        if (timerAudioContext.state !== 'closed') {
+            timerAudioContext.close().catch((e) => {
+                console.warn('AudioContext close failed:', e);
+            });
+        }
+        timerAudioContext = null;
+    }
 };
 
-export const timerPause = () => {
-    browser.runtime.sendMessage({ type: 'PAUSE_TIMER' });
+export const updateBadge = async () => {
+    const { timerData } = await browser.storage.local.get('timerData');
+    const { isRunning, startTime, duration, next } = timerData || {};
+    const now = Date.now();
+    const end = (startTime || 0) + (duration || 0);
+    const remaining = end - now;
+
+    if (!isRunning || !startTime || !duration) {
+        await browser.browserAction.setBadgeText({ text: '' });
+        clearInterval(backgroundInterval);
+        return;
+    }
+
+    if (remaining <= 0) {
+        await browser.browserAction.setBadgeText({ text: '' });
+        clearInterval(backgroundInterval);
+
+        if (next?.duration) {
+            const nextDuration = next.duration;
+            await browser.storage.local.set({
+                timerData: {
+                    isRunning: true,
+                    startTime: Date.now(),
+                    duration: nextDuration
+                }
+            });
+            startBackgroundTimer();
+        } else {
+            await browser.storage.local.set({
+                timerData: {
+                    isRunning: false,
+                    startTime,
+                    duration,
+                    isFinished: true
+                }
+            });
+        }
+
+        timerAudioPlay();
+        return;
+    }
+
+    const remainingMin = Math.ceil(remaining / 60000);
+    await browser.browserAction.setBadgeText({ text: `${remainingMin}` });
+    await browser.browserAction.setBadgeBackgroundColor({ color: '#c62828' });
+};
+
+export const startBackgroundTimer = () => {
+    clearInterval(backgroundInterval);
+
+    updateBadge();
+
+    backgroundInterval = setInterval(updateBadge, 1000);
 };
 
 export const timer = () => {
@@ -23,7 +103,9 @@ export const timer = () => {
     const containerTimer = document.querySelector('.element_timer');
     const containerDone = document.querySelector('.element_done');
 
-    if (!containerForm || !containerTimer || !containerDone) return;
+    if (!containerForm || !containerTimer || !containerDone) {
+        return
+    };
 
     const selectDuration = containerForm.querySelector('.select_duration');
 
@@ -38,25 +120,31 @@ export const timer = () => {
     const buttonNew = containerDone.querySelector('.button_new');
     const buttonBreak = containerDone.querySelector('.button_break');
 
-    const toggle = (hide = [], show = []) => {
+    const timerToggleDisplay = (hide = [], show = []) => {
         hide.forEach(element => element?.classList?.add('hidden', 'opacity-0'));
         hide.forEach(element => element?.classList?.remove('flex'));
+
         show.forEach(element => element?.classList?.remove('hidden', 'opacity-0'));
         show.forEach(element => element?.classList?.add('flex'));
     };
 
-    const updateFormUI = () => {
-        const isCustom = selectDuration.value === 'custom';
-        containerCustomInput.classList.toggle('hidden', !isCustom);
-        inputCustomDuration.disabled = !isCustom;
-        inputCustomDuration.required = isCustom;
+    const timerToggleCustomInputDisplay = () => {
+        const elementInputValues = selectDuration.value === 'custom';
 
-        if (!isCustom) {
-            inputCustomDuration.value = ''
-        };
+        containerCustomInput.classList.toggle('hidden', !elementInputValues);
+
+        containerCustomInput.disabled = !elementInputValues;
+        inputCustomDuration.required = true;
+        inputCustomDuration.disabled = false;
+
+        if (!elementInputValues) {
+            containerCustomInput.value = '';
+            inputCustomDuration.required = false;
+            inputCustomDuration.disabled = true;
+        }
     };
 
-    const addDurationOptions = () => {
+    const timerAddOptionsDurations = () => {
         const fragments = document.createDocumentFragment();
         for (let minutes = 5; minutes <= 60; minutes += 5) {
             const options = document.createElement('option');
@@ -65,123 +153,136 @@ export const timer = () => {
 
             fragments.appendChild(options);
         }
+
         selectDuration.appendChild(fragments);
     };
 
-    const startCountdown = (start, duration) => {
+    const timerStartCountdown = (start, duration) => {
         let localStartTime = start;
 
-        const tick = () => {
-            if (isPaused) return;
+        const timerTick = () => {
+            if (timerIsPaused) {
+                return
+            };
 
-            const now = Date.now();
-            const remaining = Math.max(0, localStartTime + duration - now);
+            const remaining = Math.max(0, localStartTime + duration - Date.now());
 
-            const min = Math.floor(remaining / 60000).toString().padStart(2, '0');
-            const sec = Math.floor((remaining % 60000) / 1000).toString().padStart(2, '0');
-            timeDisplay.textContent = `${min}:${sec}`;
+            timeDisplay.textContent = `${Math.floor(remaining / 60000).toString().padStart(2, '0')}:${Math.floor((remaining % 60000) / 1000).toString().padStart(2, '0')}`;
 
             if (remaining <= 0) {
-                clearInterval(countdownInterval);
-                toggle([containerTimer, containerForm], [containerDone]);
+                clearInterval(timerCountdownInterval);
+                timerToggleDisplay([containerTimer, containerForm], [containerDone]);
             }
 
-            pausedRemaining = Math.max(0, localStartTime + duration - Date.now());
+            timerPausedRemaining = Math.max(0, localStartTime + duration - Date.now());
         };
 
-        clearInterval(countdownInterval);
+        clearInterval(timerCountdownInterval);
+        timerTick();
 
-        tick();
-
-        countdownInterval = setInterval(tick, 1000);
+        timerCountdownInterval = setInterval(timerTick, 1000);
     };
 
-    const checkExistingTimer = () => {
+    const timerCheckExisting = () => {
         browser.storage.local.get('timerData').then(({ timerData }) => {
             const { isRunning, startTime, duration, isFinished } = timerData || {};
             const now = Date.now();
-
             if (isRunning && startTime && duration && now < startTime + duration) {
-                toggle([containerForm, containerDone], [containerTimer]);
-                isPaused = false;
-                startCountdown(startTime, duration);
-                previousDuration = duration;
-            } else if (!isRunning && duration && !isFinished) {
-                toggle([containerForm, containerDone], [containerTimer]);
-                isPaused = true;
-                pausedRemaining = duration;
+                timerToggleDisplay([containerForm, containerDone], [containerTimer]);
+                timerStartCountdown(startTime, duration);
 
-                const min = Math.floor(duration / 60000).toString().padStart(2, '0');
-                const sec = Math.floor((duration % 60000) / 1000).toString().padStart(2, '0');
-                timeDisplay.textContent = `${min}:${sec}`;
+                timerIsPaused = false;
+                timerPreviousDuration = duration;
+            } else if (!isRunning && duration && !isFinished) {
+                timerToggleDisplay([containerForm, containerDone], [containerTimer]);
+
+                timerIsPaused = true;
+                timerPausedRemaining = duration;
+
+                timeDisplay.textContent = `${Math.floor(duration / 60000).toString().padStart(2, '0')}:${Math.floor((duration % 60000) / 1000).toString().padStart(2, '0')}`;
 
                 buttonPause.querySelector('.play').classList.remove('hidden');
                 buttonPause.querySelector('.pause').classList.add('hidden');
                 buttonPause.querySelector('span').textContent = browser.i18n.getMessage('resume_session') || 'Resume Session';
 
-                clearInterval(countdownInterval);
+                clearInterval(timerCountdownInterval);
             } else if (isFinished || (startTime && duration && now >= startTime + duration)) {
-                toggle([containerForm, containerTimer], [containerDone]);
-                clearInterval(countdownInterval);
+                timerToggleDisplay([containerForm, containerTimer], [containerDone]);
+
+                clearInterval(timerCountdownInterval);
             } else {
-                toggle([containerTimer, containerDone], [containerForm]);
-                clearInterval(countdownInterval);
+                timerToggleDisplay([containerTimer, containerDone], [containerForm]);
+
+                clearInterval(timerCountdownInterval);
             }
         });
     };
 
+    const timerParse = (inputValue) => {
+        const cleaned = inputValue.replace(',', '.').trim();
+
+        const isValid = /^(\d+)?(\.\d{1,2})?$/.test(cleaned);
+        if (!isValid) return NaN;
+
+        const floatMinutes = parseFloat(cleaned);
+        if (isNaN(floatMinutes) || floatMinutes <= 0) return NaN;
+
+        return floatMinutes * 60000;
+    };
 
     containerForm.addEventListener('submit', (event) => {
         event.preventDefault();
 
-        updateFormUI();
+        timerToggleCustomInputDisplay();
 
-        const values = selectDuration.value === 'custom' ? parseInt(inputCustomDuration.value.trim(), 10) : parseInt(selectDuration.value, 10);
+        const values = selectDuration.value === 'custom' ? timerParse(inputCustomDuration.value) : parseInt(selectDuration.value, 10) * 60000;
         if (isNaN(values) || values <= 0) {
-            return inputCustomDuration.focus()
-        };
+            return inputCustomDuration.focus();
+        }
 
-        previousDuration = values * 60000;
-        timerStart(values);
-        toggle([containerForm, containerDone], [containerTimer]);
-        startCountdown(Date.now(), previousDuration);
+        timerPreviousDuration = values;
+
+        browser.runtime.sendMessage({ type: 'TIMER_START', durationInMinutes: values / 60000 });
+
+        timerToggleDisplay([containerForm, containerDone], [containerTimer]);
+
+        timerStartCountdown(Date.now(), timerPreviousDuration);
     });
 
     buttonStop.addEventListener('click', (event) => {
         event.preventDefault();
 
         browser.storage.local.remove('timerData');
+        browser.runtime.sendMessage({ type: 'TIMER_STOP' });
+        browser.runtime.sendMessage({ type: 'TIMER_AUDIO_STOP' });
 
-        clearInterval(countdownInterval);
-        toggle([containerTimer, containerDone], [containerForm]);
-        timerStop();
+        clearInterval(timerCountdownInterval);
+        timerToggleDisplay([containerTimer, containerDone], [containerForm]);
     });
 
     buttonPause.addEventListener('click', (event) => {
         event.preventDefault();
 
-        isPaused = !isPaused;
+        timerIsPaused = !timerIsPaused;
 
-        if (isPaused) {
-            timerPause();
+        if (timerIsPaused) {
+            browser.runtime.sendMessage({ type: 'TIMER_PAUSE' });
+
             buttonPause.querySelector('.play').classList.remove('hidden');
             buttonPause.querySelector('.pause').classList.add('hidden');
 
             buttonPause.querySelector('span').textContent = browser.i18n.getMessage('resume_session') || 'Resume Session';
 
-            clearInterval(countdownInterval);
+            clearInterval(timerCountdownInterval);
         } else {
             buttonPause.querySelector('.play').classList.add('hidden');
             buttonPause.querySelector('.pause').classList.remove('hidden');
 
             buttonPause.querySelector('span').textContent = browser.i18n.getMessage('pause_session') || 'Pause Session';
 
-            browser.runtime.sendMessage({
-                type: 'RESUME_TIMER',
-                durationInMs: pausedRemaining
-            });
+            browser.runtime.sendMessage({ type: 'TIMER_RESUME', durationInMs: timerPausedRemaining });
 
-            startCountdown(Date.now(), pausedRemaining);
+            timerStartCountdown(Date.now(), timerPausedRemaining);
         }
     });
 
@@ -189,33 +290,39 @@ export const timer = () => {
         event.preventDefault();
 
         browser.storage.local.remove('timerData');
-        toggle([containerTimer, containerDone], [containerForm]);
+        browser.runtime.sendMessage({ type: 'TIMER_AUDIO_STOP' });
+
+        timerToggleDisplay([containerTimer, containerDone], [containerForm]);
     });
 
     buttonBreak.addEventListener('click', (event) => {
         event.preventDefault();
 
-        previousDuration = previousDuration || 25 * 60000;
-        const breakDuration = Math.min(5, Math.floor(previousDuration / 60000)) * 60000;
+        timerPreviousDuration = timerPreviousDuration || 25 * 60000;
+        const breakDuration = Math.min(5, Math.floor(timerPreviousDuration / 60000)) * 60000;
 
+        browser.runtime.sendMessage({ type: 'TIMER_AUDIO_STOP' });
         browser.storage.local.set({
             timerData: {
                 isRunning: true,
                 startTime: Date.now(),
                 duration: breakDuration,
                 next: {
-                    duration: previousDuration
+                    duration: timerPreviousDuration
                 }
             }
         });
 
-        toggle([containerForm, containerDone], [containerTimer]);
-        isPaused = false;
-        startCountdown(Date.now(), breakDuration);
+        timerToggleDisplay([containerForm, containerDone], [containerTimer]);
+
+        timerIsPaused = false;
+        timerStartCountdown(Date.now(), breakDuration);
     });
 
+    selectDuration.addEventListener('change', () => {
+        timerToggleCustomInputDisplay()
+    });
 
-    selectDuration.addEventListener('change', updateFormUI);
-    addDurationOptions();
-    checkExistingTimer();
+    timerAddOptionsDurations();
+    timerCheckExisting();
 };

@@ -1,122 +1,75 @@
 export const rippleEffect = (rippleClass) => {
-    // Store the current ripple element for later removal
-    let elcreativeRipple;
-
-    // Listen for pointer down events on the document
     document.addEventListener('pointerdown', (event) => {
-        // Get the target element of the event
-        let rippleTarget = event.target;
+        const target = event.target.closest(`.${rippleClass}`);
+        if (!target) {
+            return
+        };
 
-        // Remove the previous ripple element after 400ms
-        if (elcreativeRipple) {
-            elcreativeRipple.remove();
-            elcreativeRipple = null;
-        }
+        const rectangles = target.getBoundingClientRect();
+        const offsetX = event.clientX - rectangles.left;
+        const offsetY = event.clientY - rectangles.top;
 
-        // Find the closest ancestor element with the specified ripple class
-        while (rippleTarget && rippleTarget.classList && !rippleTarget.classList.contains(rippleClass)) {
-            rippleTarget = rippleTarget.parentNode;
-        }
+        const maxX = Math.max(offsetX, rectangles.width - offsetX);
+        const maxY = Math.max(offsetY, rectangles.height - offsetY);
+        const radius = Math.sqrt(maxX ** 2 + maxY ** 2);
 
-        // If a target element with the ripple class is found
-        if (rippleTarget && rippleTarget.classList && rippleTarget.classList.contains(rippleClass)) {
-            // Get the bounding rectangle of the target element
-            const rect = rippleTarget.getBoundingClientRect();
+        // Ripple container
+        const container = document.createElement('div');
+        container.className = 'ripple_container pointer-events-none absolute inset-0 overflow-hidden text-transparent [transform:perspective(0)]';
+        target.appendChild(container);
 
-            // Calculate the position of the ripple relative to the target element
-            const rippleAxisX = event.clientX - rect.left;
-            const rippleAxisY = event.clientY - rect.top;
+        // Ripple element
+        const ripple = document.createElement('div');
+        Object.assign(ripple.style, {
+            position: 'absolute',
+            top: `${offsetY - radius}px`,
+            left: `${offsetX - radius}px`,
+            width: `${2 * radius}px`,
+            height: `${2 * radius}px`,
+            borderRadius: '50%',
+            backgroundColor: `rgba${getComputedStyle(target).color.slice(3, -1)}, 0.18`,
+            transform: 'scale(0)',
+            opacity: '1',
+            transition: 'opacity 700ms ease-in-out, transform 700ms ease-in-out',
+        });
+        ripple.className = 'rounded-full dark:bg-colorDarkTextTrans2';
 
-            // Calculate the width and height of the ripple based on the position
-            const rippleWidth = Math.max(rippleAxisX, rippleTarget.offsetWidth - rippleAxisX);
-            const rippleHeight = Math.max(rippleAxisY, rippleTarget.offsetHeight - rippleAxisY);
+        container.appendChild(ripple);
 
-            // Calculate the diameter of the ripple
-            const rippleDiameter = Math.sqrt(rippleWidth * rippleWidth + rippleHeight * rippleHeight);
+        // Animate
+        requestAnimationFrame(() => {
+            ripple.style.transform = 'scale(1)';
+        });
 
-            // Get the color of the target element and create a transparent version
-            const rippleParentColor = getComputedStyle(rippleTarget).color;
-            const rippleParentColorTransparent = `rgba${rippleParentColor.slice(3, -1)}, 0.18`;
+        // Fade out after pointer up or timeout
+        const fadeOut = () => {
+            ripple.style.opacity = '0';
 
-            // Create the ripple container element
-            const rippleContainer = document.createElement('div');
-            rippleContainer.classList.add(
-                'ripple_container',
-                'pointer-events-none',
-                'absolute',
-                'inset-0',
-                'overflow-hidden',
-                'text-transparent',
-                '[transform:perspective(0)]'
-            );
-
-            // Append the ripple container to the target element
-            rippleTarget.appendChild(rippleContainer);
-
-            // Create the ripple element
-            const rippleElement = document.createElement('div');
-
-            // Set the position, size, and style of the ripple element
-            rippleElement.style.top = rippleAxisY - rippleDiameter + 'px';
-            rippleElement.style.left = rippleAxisX - rippleDiameter + 'px';
-            rippleElement.style.height = 2 * rippleDiameter + 'px';
-            rippleElement.style.width = 2 * rippleDiameter + 'px';
-            rippleElement.style.borderRadius = '50%';
-            rippleElement.style.backgroundColor = rippleParentColorTransparent;
-            rippleElement.classList.add(
-                'absolute',
-                'rounded-full',
-                'transition-[opacity,transform]',
-                'duration-700',
-                'ease-in-out',
-                'dark:bg-colorDarkTextTrans2'
-            );
-
-            // Append the ripple element to the ripple container
-            rippleContainer.appendChild(rippleElement);
-
-            // Store the ripple container for later removal
-            elcreativeRipple = rippleContainer;
-
-            // Animate the ripple
-            rippleElement.style.transform = 'scale(0)';
-            rippleElement.style.opacity = '1';
             setTimeout(() => {
-                rippleElement.style.transform = 'scale(1)';
-            }, 24);
+                container.remove();
+            }, 700); // Match transition duration
+        };
 
-            // Handle pointer up, pointer cancel, and pointer move events
-            const handlePointerUp = () => {
-                // Remove event listeners
-                document.removeEventListener('pointerup', handlePointerUp);
-                document.removeEventListener('pointercancel', handlePointerUp);
-                document.removeEventListener('pointermove', handlePointerMove);
+        const handleMove = (eventHandleMove) => {
+            if (Math.sqrt(eventHandleMove.clientX - event.clientX ** 2 + eventHandleMove.clientY - event.clientY ** 2) > radius / 2) {
+                fadeOut();
+                removeListeners();
+            }
+        };
 
-                // Fade out the ripple
-                rippleElement.style.opacity = '0';
-            };
+        const handleEnd = () => {
+            fadeOut();
+            removeListeners();
+        };
 
-            const handlePointerMove = (event) => {
-                // Calculate the new position of the ripple
-                const newRippleAxisX = event.clientX - rect.left;
-                const newRippleAxisY = event.clientY - rect.top;
+        const removeListeners = () => {
+            document.removeEventListener('pointerup', handleEnd);
+            document.removeEventListener('pointercancel', handleEnd);
+            document.removeEventListener('pointermove', handleMove);
+        };
 
-                // Calculate the distance the pointer has moved
-                const distance = Math.sqrt(
-                    (newRippleAxisX - rippleAxisX) * (newRippleAxisX - rippleAxisX) +
-                    (newRippleAxisY - rippleAxisY) * (newRippleAxisY - rippleAxisY)
-                );
-
-                // If the pointer moves too far, cancel the ripple
-                if (distance > rippleDiameter / 2) {
-                    handlePointerUp();
-                }
-            };
-
-            // Add event listeners for pointer up, pointer cancel, and pointer move
-            document.addEventListener('pointerup', handlePointerUp);
-            document.addEventListener('pointercancel', handlePointerUp);
-            document.addEventListener('pointermove', handlePointerMove);
-        }
+        document.addEventListener('pointerup', handleEnd);
+        document.addEventListener('pointercancel', handleEnd);
+        document.addEventListener('pointermove', handleMove);
     });
 };

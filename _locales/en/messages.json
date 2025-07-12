@@ -26,20 +26,32 @@
     "donate_saweria": {
         "message": "Donate via Saweria"
     },
+    "form_invalid_character": {
+        "message": "Only numbers and a single dot are allowed."
+    },
+    "form_multiple_dots": {
+        "message": "Only one dot is allowed."
+    },
+    "form_max_two_decimals": {
+        "message": "Only up to two digits allowed after the decimal point."
+    },
+    "form_invalid_format": {
+        "message": "Enter a valid number in minutes, e.g., 1 or 1.5."
+    },
     "start_session": {
-        "message": "Start Session"
+        "message": "Start"
     },
     "new_session": {
-        "message": "New Session"
+        "message": "New"
     },
     "pause_session": {
-        "message": "Pause Session"
+        "message": "Pause"
     },
     "resume_session": {
-        "message": "Resume Session"
+        "message": "Resume"
     },
     "stop_session": {
-        "message": "Stop Session"
+        "message": "Stop"
     },
     "break_session": {
         "message": "Start a Break"

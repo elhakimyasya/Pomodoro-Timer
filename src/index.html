@@ -46,7 +46,7 @@
                     </button>
 
                     <nav id="dropdown_more_menu" class="dropdown_more_menu bg-colorBackground shadow-4dp dark:bg-colorDarkBackgroundAlt invisible absolute top-2 z-30 max-h-[60vh] w-max max-w-xs min-w-32 scale-0 overflow-y-auto rounded-lg py-2 opacity-0 transition-all duration-300 select-none ltr:right-2 ltr:origin-top-right rtl:left-2 rtl:origin-top-left">
-                        <a class="elcreative_ripple text-colorMeta hover:bg-colorText/10 focus:bg-colorText/10 active:bg-colorText/20 dark:text-colorDarkText dark:hover:bg-colorDarkText/10 dark:focus:bg-colorDarkText/10 dark:active:bg-colorDarkText/20 relative flex w-full cursor-pointer appearance-none items-center justify-start px-4 py-2 text-sm no-underline" href="https://addons.mozilla.org/en-US/firefox/addon/wa-direct-message/" data-toggle-trigger-off="">
+                        <a class="elcreative_ripple text-colorMeta hover:bg-colorText/10 focus:bg-colorText/10 active:bg-colorText/20 dark:text-colorDarkText dark:hover:bg-colorDarkText/10 dark:focus:bg-colorDarkText/10 dark:active:bg-colorDarkText/20 relative flex w-full cursor-pointer appearance-none items-center justify-start px-4 py-2 text-sm no-underline" href="https://addons.mozilla.org/en-US/firefox/addon/elc-pomodoro-timer/" data-toggle-trigger-off="">
                             <div class="flex items-center justify-start">
                                 <svg class="shrink-0 grow-0 ltr:mr-3 rtl:ml-3" viewBox="0 0 24 24" fill="currentColor" height="18" width="18" aria-hidden="true">
                                     <path d="M12,15.39L8.24,17.66L9.23,13.38L5.91,10.5L10.29,10.13L12,6.09L13.71,10.13L18.09,10.5L14.77,13.38L15.76,17.66M22,9.24L14.81,8.63L12,2L9.19,8.63L2,9.24L7.45,13.97L5.82,21L12,17.27L18.18,21L16.54,13.97L22,9.24Z" />
@@ -101,7 +101,7 @@
                 </div>
             </header>
 
-            <main class="flex w-full flex-col items-center justify-center p-4 pt-6 pb-4">
+            <main class="flex min-h-60 w-full flex-col items-center justify-start p-4 pt-6 pb-4">
                 <form class="element_form mx-auto flex w-full max-w-5xl flex-col items-center justify-center" name="element_form">
                     <div class="elcreative_input mb-4 w-full">
                         <select id="select_duration" class="select_duration max-h-44" name="select_duration" required="">
@@ -113,7 +113,7 @@
 
                     <div class="container_custom_input mb-4 hidden w-full">
                         <div class="elcreative_input mb-2 w-full">
-                            <input id="input_duration_custom" class="input_duration_custom" name="input_duration_custom" type="number" placeholder=" " />
+                            <input id="input_duration_custom" class="input_duration_custom" name="input_duration_custom" data-type="time" placeholder=" " />
                             <label for="input_duration_custom" data-i18n="custom_duration"></label>
                         </div>
                         <p class="text-colorMeta dark:text-colorDarkMeta w-full text-start text-xs" data-i18n="enter_in_minutes"></p>
@@ -186,9 +186,11 @@
                         </button>
                     </div>
                 </div>
-
-                <p class="text-colorMeta dark:text-colorDarkMeta mt-4 text-center text-xs">© 2025 | EL Creative Developer - Yasya El Hakim</p>
             </main>
+
+            <footer class="flex w-full flex-col items-center justify-start p-4 pt-6 pb-4">
+                <p class="text-colorMeta dark:text-colorDarkMeta mt-4 text-center text-xs">EL Creative Developer - Yasya El Hakim</p>
+            </footer>
         </div>
 
         <script src="../dist/scripts/script.min.js"></script>

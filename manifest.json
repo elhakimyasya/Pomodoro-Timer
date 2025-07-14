@@ -1,55 +1,55 @@
 {
-    "manifest_version": 2,
-    "name": "__MSG_app_name__",
-    "version": "1.0",
-    "description": "__MSG_app_tagline__",
-    "default_locale": "en",
-    "browser_action": {
-        "default_popup": "src/index.html",
-        "default_icon": {
-            "48": "src/images/icons/mipmap-mdpi/icon.png",
-            "72": "src/images/icons/mipmap-hdpi/icon.png",
-            "96": "src/images/icons/mipmap-xhdpi/icon.png",
-            "144": "src/images/icons/mipmap-xxhdpi/icon.png",
-            "192": "src/images/icons/mipmap-xxxhdpi/icon.png"
-        }
-    },
-    "icons": {
-        "48": "src/images/icons/mipmap-mdpi/icon.png",
-        "72": "src/images/icons/mipmap-hdpi/icon.png",
-        "96": "src/images/icons/mipmap-xhdpi/icon.png",
-        "144": "src/images/icons/mipmap-xxhdpi/icon.png",
-        "192": "src/images/icons/mipmap-xxxhdpi/icon.png"
-    },
-    "content_scripts": [
-        {
-            "matches": [
-                "<all_urls>"
-            ],
-            "js": [
-                "dist/scripts/script.min.js"
-            ]
-        }
+  "manifest_version": 2,
+  "name": "__MSG_app_name__",
+  "version": "1.1",
+  "description": "__MSG_app_tagline__",
+  "default_locale": "en",
+  "browser_action": {
+    "default_popup": "src/index.html",
+    "default_icon": {
+      "48": "src/images/icons/mipmap-mdpi/icon.png",
+      "72": "src/images/icons/mipmap-hdpi/icon.png",
+      "96": "src/images/icons/mipmap-xhdpi/icon.png",
+      "144": "src/images/icons/mipmap-xxhdpi/icon.png",
+      "192": "src/images/icons/mipmap-xxxhdpi/icon.png"
+    }
+  },
+  "icons": {
+    "48": "src/images/icons/mipmap-mdpi/icon.png",
+    "72": "src/images/icons/mipmap-hdpi/icon.png",
+    "96": "src/images/icons/mipmap-xhdpi/icon.png",
+    "144": "src/images/icons/mipmap-xxhdpi/icon.png",
+    "192": "src/images/icons/mipmap-xxxhdpi/icon.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "dist/scripts/script.min.js"
+      ]
+    }
+  ],
+  "permissions": [
+    "storage",
+    "tabs",
+    "activeTab",
+    "alarms",
+    "notifications"
+  ],
+  "background": {
+    "scripts": [
+      "dist/scripts/background.min.js"
     ],
-    "permissions": [
-        "storage",
-        "tabs",
-        "activeTab",
-        "alarms",
-        "notifications"
-    ],
-    "background": {
-        "scripts": [
-            "dist/scripts/background.min.js"
-        ],
-        "persistent": true
-    },
-    "browser_specific_settings": {
-        "gecko": {
-            "id": "pomodoro-timer@elcreative.net"
-        }
-    },
-    "web_accessible_resources": [
-        "src/audios/alarm.mp3"
-    ]
+    "persistent": true
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "pomodoro-timer@elcreative.net"
+    }
+  },
+  "web_accessible_resources": [
+    "src/audios/alarm.mp3"
+  ]
 }
